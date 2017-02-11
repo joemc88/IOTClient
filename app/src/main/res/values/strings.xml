@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">IOT Client</string>
+    <string name="login_screen">Login Screen:</string>
+    <string name="login">Login</string>
+    <string name="checkin">Checkin</string>
+    <string name="item1">item1</string>
+    <string name="item2">item2</string>
+    <string name="item3">item3</string>
+    <string name="item4">item4</string>
+    <string name="item5">item5</string>
+    <string name="checkInURL">http://192.168.0.150:8080/checkIn</string>
+    <string name="home">homeCheckin</string>
+    <string name="workcheckin">workCheckin</string>
+    <string name="uid">1</string>
+</resources>
