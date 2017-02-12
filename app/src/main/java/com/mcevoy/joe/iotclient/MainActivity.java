@@ -1,36 +1,29 @@
 package com.mcevoy.joe.iotclient;
 
-
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
-
 import com.loopj.android.http.RequestHandle;
 import com.loopj.android.http.RequestParams;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
-
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
     private String response;
-    //private final String uid = getString(R.string.uid);
     private  ArrayList<String> items;
     private  String[] discoveredHomeServices ={"home1","home2","home3","home4","home5"};
     private  String[] discoveredWorkServices ={"work1","work2","work3","work4","work5"};
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        items = new ArrayList<String>();
+        items = new ArrayList<>();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -58,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             items.add("local unknown");
         }
     }
-
+//comment
     private  String buildServiceQuery(String[] discoveredServices){
         String retVal = "?uid="+getString(R.string.uid)+"&services=";
             retVal = retVal+discoveredServices[0];
@@ -97,13 +90,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 String respString = new String(responseBody);
                 try{
                     JSONObject reader = new JSONObject(respString);
-                    Log.d("parsing", reader.toString());
                     JSONArray jsArray = reader.getJSONArray("item");
                     if(jsArray != null){
-                        items = new ArrayList<String>();
+                        items = new ArrayList<>();
                         int len = jsArray.length();
                         for(int i = 0; i <len;i++){
-                            Log.d("Prsing array","pRSING array "+jsArray.get(i).toString());
+
                            items.add(jsArray.get(i).toString());
                         }
                         Button   one =(Button)  findViewById(R.id.item1);
@@ -118,18 +110,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         five.setText(items.get(4));
                     }
                     response = reader.getString("id");
-
-                    Log.d("getting id", response);
-                  //  response = id.getString()
                 }catch(JSONException j) {
                     Log.d("json error",j.toString());
                 }
             }
             @Override
             public void onFailure(int statusCode, cz.msebera.android.httpclient.Header[] headers, byte[] responseBody, Throwable error) {
-                Log.d("joe failed","failure");
                 String x = String.valueOf( statusCode);
-                Log.d("joe failed",x );
+                Log.d("Request failed. Error: ",x );
                 response = "failure";
             }
         });
