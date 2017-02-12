@@ -74,6 +74,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log.d("clicked","work clicked");
                 TextView y = (TextView) findViewById(R.id.checkinStatus);
                 y.setText("Work");
+                //thiss is a comment
                 contactServer(getString(R.string.checkInURL)+buildServiceQuery(discoveredWorkServices));
                 break;
         }
