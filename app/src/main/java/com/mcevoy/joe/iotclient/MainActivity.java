@@ -14,6 +14,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.ArrayList;
+import android.content.SharedPreferences;
+import java.util.Calendar;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -21,37 +28,62 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private  ArrayList<String> items;
     private  String[] discoveredHomeServices ={"home1","home2","home3","home4","home5"};
     private  String[] discoveredWorkServices ={"work1","work2","work3","work4","work5"};
+
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         items = new ArrayList<>();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //create edit prefs
+        SharedPreferences storedItems = getSharedPreferences("items", 0);
+        String item1String = storedItems.getString("item1", "Unknown");
+        String item2String = storedItems.getString("item2", "Unknown");
+        String item3String = storedItems.getString("item3", "Unknown");
+        String item4String = storedItems.getString("item4", "Unknown");
+        String item5String = storedItems.getString("item5", "Unknown");
+
+        Log.i("saved",item1String);
         Button homeCheckInButton = (Button) findViewById(R.id.homeCheckin);
+
         homeCheckInButton.setOnClickListener(this);
         Button workCheckInButton = (Button) findViewById(R.id.workCheckin);
         workCheckInButton.setOnClickListener(this);
 
         Button endpointButton1 = (Button) findViewById(R.id.item1);
         endpointButton1.setOnClickListener(this);
+        endpointButton1.setText(item1String);
 
         Button endpointButton2 = (Button) findViewById(R.id.item2);
         endpointButton2.setOnClickListener(this);
+        endpointButton2.setText(item2String);
+
 
         Button endpointButton3 = (Button) findViewById(R.id.item3);
         endpointButton3.setOnClickListener(this);
+        endpointButton3.setText(item3String);
+
 
         Button endpointButton4 = (Button) findViewById(R.id.item4);
         endpointButton4.setOnClickListener(this);
+        endpointButton4.setText(item4String);
+
 
         Button endpointButton5 = (Button) findViewById(R.id.item5);
         endpointButton5.setOnClickListener(this);
+        endpointButton5.setText(item5String);
+
 
         for(int i = 0;i <5; i++){
             items.add("local unknown");
         }
     }
-//comment
+
+
+
     private  String buildServiceQuery(String[] discoveredServices){
         String retVal = "?uid="+getString(R.string.uid)+"&services=";
             retVal = retVal+discoveredServices[0];
@@ -64,19 +96,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.homeCheckin:
-                Log.d("clicked","home clicked");
                 TextView x = (TextView) findViewById(R.id.checkinStatus);
                 x.setText("Home");
                 Log.d("URL",getString(R.string.checkInURL)+buildServiceQuery(discoveredHomeServices));
                 contactServer(getString(R.string.checkInURL)+buildServiceQuery(discoveredHomeServices));
                 break;
             case R.id.workCheckin:
-                Log.d("clicked","work clicked");
                 TextView y = (TextView) findViewById(R.id.checkinStatus);
                 y.setText("Work");
-                //thiss is a comment
+
                 contactServer(getString(R.string.checkInURL)+buildServiceQuery(discoveredWorkServices));
                 break;
+            case R.id.item1:
+                startService(new Intent(this, CheckinService.class));
+                Calendar cal = Calendar.getInstance();
+                Intent intent = new Intent(this, CheckinService.class);
+                PendingIntent pintent = PendingIntent
+                        .getService(this, 0, intent, 0);
+
+                AlarmManager alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+                // Start service every hour
+                alarm.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(),
+                        60*1000, pintent);
         }
     }
 
