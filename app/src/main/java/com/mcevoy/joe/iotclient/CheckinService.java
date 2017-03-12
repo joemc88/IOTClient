@@ -36,6 +36,7 @@ public class CheckinService extends Service{
         Toast.makeText(this, " MyService Started", Toast.LENGTH_SHORT).show();
        // Log.i("Time", Integer.toString(getHour()));
       //  Log.i("Day",Integer.toString( getDay()));
+        Log.i("url attempt", getString(R.string.checkInURL)+buildServiceQuery());
         contactServer(getString(R.string.checkInURL)+buildServiceQuery());
       // contactServer("http://192.168.0.150:8080/checkIn");
 

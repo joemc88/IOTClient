@@ -5,12 +5,12 @@ package com.mcevoy.joe.iotclient;
  */
 
 public class ServiceDiscovery {
-    private String[] discoveredHomeServices ={"Blinds","Garage Door","Yard Light","Hive Up","Hive Down"};
-    private String[] discoveredWorkServices ={"Temp Up","Temp Down","Blinds Up","","work5"};
-    private String[] discoveredCollegeService = {"Smart Card","Unlock Lab","Temp Up","Temp Down","Book Room"};
-    private String[] discoveredLunchServices = {"Order Food","Pay","lunch 3","lunch 4","lunch 5"};
-    private String[] discoveredTravelServices =  {"Summon Car","Dismiss Car","Volume Up","Volume Down","Travel 5"};
-    private String[] discoveredGymServices = {"Check In","Skip Song","Reserve Court","Increase Weight","Decrease Weight"};
+    private String[] discoveredHomeServices ={"Blinds","GarageDoor","YardLight","HiveUp","HiveDown"};
+    private String[] discoveredWorkServices ={"Temp Up","TempDown","BlindsUp","","work5"};
+    private String[] discoveredCollegeService = {"SmartCard","UnlockLab","Temp Up","TempDown","BookRoom"};
+    private String[] discoveredLunchServices = {"OrderFood","Pay","lunch3","lunch 4","lunch5"};
+    private String[] discoveredTravelServices =  {"SummonCar","DismissCar","VolumeUp","VolumeDown","Travel5"};
+    private String[] discoveredGymServices = {"CheckIn","SkipSong","ReserveCourt","IncreaseWeight","DecreaseWeight"};
 
     private String[][] contexts = {discoveredHomeServices,discoveredCollegeService,discoveredLunchServices,discoveredWorkServices,discoveredGymServices,discoveredTravelServices};
 

@@ -1,11 +1,13 @@
 package com.mcevoy.joe.iotclient;
 
+import android.app.Service;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
+import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestHandle;
@@ -20,23 +22,44 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import android.app.Activity;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.ExpandableListView;
+import android.widget.ExpandableListView.OnChildClickListener;
+import android.widget.ExpandableListView.OnGroupClickListener;
+import android.widget.ExpandableListView.OnGroupCollapseListener;
+import android.widget.ExpandableListView.OnGroupExpandListener;
+import android.widget.Toast;
 
+import java.util.HashMap;
+import java.util.List;
+
+import android.content.Context;
+import android.graphics.Typeface;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseExpandableListAdapter;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
     private String response;
     private  ArrayList<String> items;
-    private  String[] discoveredHomeServices ={"home1","home2","home3","home4","home5"};
-    private  String[] discoveredWorkServices ={"work1","work2","work3","work4","work5"};
-
-
-
-
+    private ServiceDiscovery discoverer;
+    private Intent intent;
+    private PendingIntent pintent;
+    private  List<String> listDataHeader;
+    private HashMap<String, List<String>> listDataChild;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        items = new ArrayList<>();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        discoverer = new ServiceDiscovery();
 
         //create edit prefs
         SharedPreferences storedItems = getSharedPreferences("items", 0);
@@ -46,14 +69,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String item4String = storedItems.getString("item4", "Unknown");
         String item5String = storedItems.getString("item5", "Unknown");
 
-        Log.i("saved",item1String);
-        Button homeCheckInButton = (Button) findViewById(R.id.homeCheckin);
+        populateView();
+      //  Button homeCheckInButton = (Button) findViewById(R.id.homeCheckin);
 
-        homeCheckInButton.setOnClickListener(this);
-        Button workCheckInButton = (Button) findViewById(R.id.workCheckin);
-        workCheckInButton.setOnClickListener(this);
+      //  homeCheckInButton.setOnClickListener(this);
+      //  Button workCheckInButton = (Button) findViewById(R.id.workCheckin);
+      //  workCheckInButton.setOnClickListener(this);
 
-        Button endpointButton1 = (Button) findViewById(R.id.item1);
+     /*   Button endpointButton1 = (Button) findViewById(R.id.item1);
         endpointButton1.setOnClickListener(this);
         endpointButton1.setText(item1String);
 
@@ -74,12 +97,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         Button endpointButton5 = (Button) findViewById(R.id.item5);
         endpointButton5.setOnClickListener(this);
-        endpointButton5.setText(item5String);
+        endpointButton5.setText(item5String);*/
+       intent = new Intent(this, CheckinService.class);
+         pintent = PendingIntent
+                .getService(this, 0, intent, 0);
+
+        startService(new Intent(this, CheckinService.class));
+        Calendar cal = Calendar.getInstance();
 
 
-        for(int i = 0;i <5; i++){
-            items.add("local unknown");
-        }
+        AlarmManager alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        // Start service every hour
+        alarm.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(),
+                60*1000, pintent);
     }
 
 
@@ -94,41 +124,67 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
+       /*switch (v.getId()) {
             case R.id.homeCheckin:
-                TextView x = (TextView) findViewById(R.id.checkinStatus);
-                x.setText("Home");
-                Log.d("URL",getString(R.string.checkInURL)+buildServiceQuery(discoveredHomeServices));
-                contactServer(getString(R.string.checkInURL)+buildServiceQuery(discoveredHomeServices));
+             //   TextView x = (TextView) findViewById(R.id.checkinStatus);
+                Calendar c = Calendar.getInstance();
+                int notReallyHour = c.get(Calendar.HOUR);
+
+                String time = Integer.toString(notReallyHour);
+            //    x.setText(time);
+
+                SharedPreferences storedItems = getSharedPreferences("items", 0);
+                String item1String = storedItems.getString("item1", "Unknown");
+                String item2String = storedItems.getString("item2", "Unknown");
+                String item3String = storedItems.getString("item3", "Unknown");
+                String item4String = storedItems.getString("item4", "Unknown");
+                String item5String = storedItems.getString("item5", "Unknown");
+/*
+                Button endpointButton1 = (Button) findViewById(R.id.item1);
+                Button endpointButton2 = (Button) findViewById(R.id.item2);
+                Button endpointButton3 = (Button) findViewById(R.id.item3);
+                Button endpointButton4 = (Button) findViewById(R.id.item4);
+                Button endpointButton5 = (Button) findViewById(R.id.item5);
+
+
+                endpointButton1.setText(item1String);
+                endpointButton2.setText(item2String);
+                endpointButton3.setText(item3String);
+                endpointButton4.setText(item4String);
+                endpointButton5.setText(item5String);
+
+
                 break;
             case R.id.workCheckin:
-                TextView y = (TextView) findViewById(R.id.checkinStatus);
-                y.setText("Work");
-
-                contactServer(getString(R.string.checkInURL)+buildServiceQuery(discoveredWorkServices));
+              //  TextView y = (TextView) findViewById(R.id.checkinStatus);
+              //  y.setText("Cancel");
+                AlarmManager salarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+                salarm.cancel(pintent);
+              //  contactServer(getString(R.string.checkInURL)+buildServiceQuery(discoveredWorkServices));
                 break;
             case R.id.item1:
                 startService(new Intent(this, CheckinService.class));
                 Calendar cal = Calendar.getInstance();
-                Intent intent = new Intent(this, CheckinService.class);
-                PendingIntent pintent = PendingIntent
-                        .getService(this, 0, intent, 0);
+
 
                 AlarmManager alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
                 // Start service every hour
                 alarm.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(),
                         60*1000, pintent);
-        }
+
+        }*/
     }
 
-    private void contactServer( String url){
+    private String[] contactServer( String url){
         RequestParams rp = new RequestParams();
 
+        final String[] predictedServices = new String[5];
         AsyncHttpClient client = new AsyncHttpClient();
         RequestHandle handle =  client.get(url, rp, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, cz.msebera.android.httpclient.Header[] headers, byte[] responseBody) {
-
+                SharedPreferences mPrefs = getSharedPreferences("items", 0);
+                SharedPreferences.Editor mEditor = mPrefs.edit();
                 String respString = new String(responseBody);
                 try{
                     JSONObject reader = new JSONObject(respString);
@@ -137,19 +193,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         items = new ArrayList<>();
                         int len = jsArray.length();
                         for(int i = 0; i <len;i++){
-
-                           items.add(jsArray.get(i).toString());
+                            mEditor.putString("item"+i, jsArray.get(i).toString()).commit();
+                            //predictedServices[i] = jsArray.get(i).toString();
+                          // items.add(jsArray.get(i).toString());
                         }
-                        Button   one =(Button)  findViewById(R.id.item1);
-                        Button   two =(Button)  findViewById(R.id.item2);
-                        Button   three =(Button)  findViewById(R.id.item3);
-                        Button   four =(Button)  findViewById(R.id.item4);
-                        Button   five =(Button)  findViewById(R.id.item5);
-                        one.setText(items.get(0));
-                        two.setText(items.get(1));
-                        three.setText(items.get(2));
-                        four.setText(items.get(3));
-                        five.setText(items.get(4));
+                       // Button   one =(Button)  findViewById(R.id.item1);
+                      //  Button   two =(Button)  findViewById(R.id.item2);
+                      ///  Button   three =(Button)  findViewById(R.id.item3);
+                      //  Button   four =(Button)  findViewById(R.id.item4);
+                      //  Button   five =(Button)  findViewById(R.id.item5);
+                       // one.setText(items.get(0));
+                       // two.setText(items.get(1));
+                      //  three.setText(items.get(2));
+                      //  four.setText(items.get(3));
+                      //  five.setText(items.get(4));
                     }
                     response = reader.getString("id");
                 }catch(JSONException j) {
@@ -163,5 +220,96 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 response = "failure";
             }
         });
+        return predictedServices;
     }
-}
+    public void populateView(){
+        //getLayouts
+        LinearLayout macroSpace = (LinearLayout) findViewById(R.id.macroSpace);
+        macroSpace.setOrientation(LinearLayout.VERTICAL);
+
+        LinearLayout serviceSpace = (LinearLayout) findViewById(R.id.visibleServicesSpace);
+        serviceSpace.setOrientation(LinearLayout.VERTICAL);
+
+        LinearLayout predictionSpace = (LinearLayout) findViewById(R.id.predictionSpace);
+        predictionSpace.setOrientation(LinearLayout.VERTICAL);
+        //add macro buttons
+        for (int i = 0; i < 3; i++) {
+            LinearLayout macroRow = new LinearLayout(this);
+            macroRow.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+            Button btnTag = new Button(this);
+            btnTag.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+            btnTag.setText("Macro " + (i));
+            btnTag.setId(i + 1);
+            btnTag.setWidth(500);
+
+            Button recordButton = new Button(this);
+            recordButton.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+            recordButton.setMinWidth(20);
+            recordButton.setText("O");
+            recordButton.setId(i + 1);
+            recordButton.setWidth(20);
+
+            Button playButton = new Button(this);
+            playButton.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+           playButton.setMinWidth(20);
+            playButton.setText(">");
+            playButton.setId(i + 1);
+            playButton.setWidth(20);
+
+            macroRow.addView(btnTag);
+            macroRow.addView(recordButton);
+            macroRow.addView(playButton);
+            macroSpace.addView(macroRow);
+        }
+        //get visible services
+        ServiceDiscovery discover = new ServiceDiscovery();
+        Calendar cal = Calendar.getInstance();
+        String[] visibleServices = discover.getServices(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.DAY_OF_WEEK));
+        //add visible service buttons
+        for(int i = 0; i< visibleServices.length;i++){
+            LinearLayout serviceRow = new LinearLayout(this);
+            serviceRow.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+            Button btnTag = new Button(this);
+            btnTag.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+
+            btnTag.setWidth(800);
+
+            btnTag.setText(visibleServices[i]);
+            btnTag.setId(i + 5);
+            serviceRow.addView(btnTag);
+            serviceSpace.addView(serviceRow);
+        }
+        //get shared prefs
+        SharedPreferences storedItems = getSharedPreferences("items", 0);
+        for(int i = 0; i < 4;i++){
+            LinearLayout predictionRow = new LinearLayout(this);
+            predictionRow.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+            Button btnTag = new Button(this);
+            btnTag.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+          //  btnTag.setText( storedItems.getString("item"+i, "Unknown"));
+            btnTag.setText( "test");
+            btnTag.setWidth(800);
+
+
+            btnTag.setId(i + 10);
+            predictionRow.addView(btnTag);
+            predictionSpace.addView(predictionRow);
+        }
+         /*
+            LinearLayout serviceRow = new LinearLayout(this);
+            serviceRow.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+
+
+
+            Button btnTag2 = new Button(this);
+            btnTag2.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+            btnTag2.setText("Button " + (i));
+            btnTag2.setId(i + 5);
+
+
+                serviceRow.addView(btnTag2);
+
+
+            serviceSpace.addView(serviceRow);*/
+
+}}
