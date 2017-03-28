@@ -25,6 +25,7 @@
 
         <service android:name=".CheckinService" />
 
+        <activity android:name=".MacroEdit"></activity>
     </application>
 
 </manifest>

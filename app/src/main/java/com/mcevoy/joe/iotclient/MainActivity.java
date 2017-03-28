@@ -1,6 +1,8 @@
 package com.mcevoy.joe.iotclient;
-
-import android.app.Service;
+import android.content.DialogInterface;
+import android.support.v7.app.AlertDialog;
+import android.text.InputType;
+import android.widget.EditText;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -8,13 +10,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
-import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.AsyncHttpResponseHandler;
-import com.loopj.android.http.RequestHandle;
-import com.loopj.android.http.RequestParams;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import java.util.ArrayList;
 import android.content.SharedPreferences;
 import java.util.Calendar;
@@ -22,32 +17,13 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import android.app.Activity;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.ExpandableListView;
-import android.widget.ExpandableListView.OnChildClickListener;
-import android.widget.ExpandableListView.OnGroupClickListener;
-import android.widget.ExpandableListView.OnGroupCollapseListener;
-import android.widget.ExpandableListView.OnGroupExpandListener;
-import android.widget.Toast;
-
 import java.util.HashMap;
 import java.util.List;
 
-import android.content.Context;
-import android.graphics.Typeface;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseExpandableListAdapter;
-import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
+    private String newMacroName = "";
     private String response;
     private  ArrayList<String> items;
     private ServiceDiscovery discoverer;
@@ -70,34 +46,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String item5String = storedItems.getString("item5", "Unknown");
 
         populateView();
-      //  Button homeCheckInButton = (Button) findViewById(R.id.homeCheckin);
 
-      //  homeCheckInButton.setOnClickListener(this);
-      //  Button workCheckInButton = (Button) findViewById(R.id.workCheckin);
-      //  workCheckInButton.setOnClickListener(this);
-
-     /*   Button endpointButton1 = (Button) findViewById(R.id.item1);
-        endpointButton1.setOnClickListener(this);
-        endpointButton1.setText(item1String);
-
-        Button endpointButton2 = (Button) findViewById(R.id.item2);
-        endpointButton2.setOnClickListener(this);
-        endpointButton2.setText(item2String);
+        Button addMacroButton = (Button) findViewById(R.id.addMacro);
+        addMacroButton.setOnClickListener(this);
 
 
-        Button endpointButton3 = (Button) findViewById(R.id.item3);
-        endpointButton3.setOnClickListener(this);
-        endpointButton3.setText(item3String);
-
-
-        Button endpointButton4 = (Button) findViewById(R.id.item4);
-        endpointButton4.setOnClickListener(this);
-        endpointButton4.setText(item4String);
-
-
-        Button endpointButton5 = (Button) findViewById(R.id.item5);
-        endpointButton5.setOnClickListener(this);
-        endpointButton5.setText(item5String);*/
        intent = new Intent(this, CheckinService.class);
          pintent = PendingIntent
                 .getService(this, 0, intent, 0);
@@ -124,8 +77,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
     @Override
     public void onClick(View v) {
-       /*switch (v.getId()) {
-            case R.id.homeCheckin:
+       switch (v.getId()) {
+           case R.id.addMacro:
+               //TODO add code here to call macrohandler and create a new macro
+               AlertDialog.Builder stringBuilder = new AlertDialog.Builder(this);
+               stringBuilder.setTitle("Enter Mqcro Name");
+
+               // Set up the input
+               final EditText input = new EditText(this);
+                // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+               input.setInputType(InputType.TYPE_CLASS_TEXT);
+               stringBuilder.setView(input);
+
+                // Set up the buttons
+               stringBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                   @Override
+                   public void onClick(DialogInterface dialog, int which) {
+                       newMacroName = input.getText().toString();
+                   }
+               });
+               stringBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                   @Override
+                   public void onClick(DialogInterface dialog, int which) {
+                       dialog.cancel();
+                   }
+               });
+               stringBuilder.show();
+               Log.i("New Macro Name",newMacroName);
+               //do something with newmacro name
+       }
+
+           /* case R.id.homeCheckin:
              //   TextView x = (TextView) findViewById(R.id.checkinStatus);
                 Calendar c = Calendar.getInstance();
                 int notReallyHour = c.get(Calendar.HOUR);
@@ -134,24 +116,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             //    x.setText(time);
 
                 SharedPreferences storedItems = getSharedPreferences("items", 0);
-                String item1String = storedItems.getString("item1", "Unknown");
-                String item2String = storedItems.getString("item2", "Unknown");
-                String item3String = storedItems.getString("item3", "Unknown");
-                String item4String = storedItems.getString("item4", "Unknown");
-                String item5String = storedItems.getString("item5", "Unknown");
-/*
-                Button endpointButton1 = (Button) findViewById(R.id.item1);
-                Button endpointButton2 = (Button) findViewById(R.id.item2);
-                Button endpointButton3 = (Button) findViewById(R.id.item3);
-                Button endpointButton4 = (Button) findViewById(R.id.item4);
-                Button endpointButton5 = (Button) findViewById(R.id.item5);
 
-
-                endpointButton1.setText(item1String);
-                endpointButton2.setText(item2String);
-                endpointButton3.setText(item3String);
-                endpointButton4.setText(item4String);
-                endpointButton5.setText(item5String);
 
 
                 break;
@@ -175,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }*/
     }
 
-    private String[] contactServer( String url){
+    /*private String[] contactServer( String url){
         RequestParams rp = new RequestParams();
 
         final String[] predictedServices = new String[5];
@@ -194,19 +159,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         int len = jsArray.length();
                         for(int i = 0; i <len;i++){
                             mEditor.putString("item"+i, jsArray.get(i).toString()).commit();
-                            //predictedServices[i] = jsArray.get(i).toString();
-                          // items.add(jsArray.get(i).toString());
                         }
-                       // Button   one =(Button)  findViewById(R.id.item1);
-                      //  Button   two =(Button)  findViewById(R.id.item2);
-                      ///  Button   three =(Button)  findViewById(R.id.item3);
-                      //  Button   four =(Button)  findViewById(R.id.item4);
-                      //  Button   five =(Button)  findViewById(R.id.item5);
-                       // one.setText(items.get(0));
-                       // two.setText(items.get(1));
-                      //  three.setText(items.get(2));
-                      //  four.setText(items.get(3));
-                      //  five.setText(items.get(4));
                     }
                     response = reader.getString("id");
                 }catch(JSONException j) {
@@ -221,7 +174,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
         return predictedServices;
-    }
+    }*/
     public void populateView(){
         //getLayouts
         LinearLayout macroSpace = (LinearLayout) findViewById(R.id.macroSpace);
@@ -232,34 +185,52 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         LinearLayout predictionSpace = (LinearLayout) findViewById(R.id.predictionSpace);
         predictionSpace.setOrientation(LinearLayout.VERTICAL);
+
+        MacroHandler macroHandler = new MacroHandler();
+        final String[] macroNames = macroHandler.getNames();
+
         //add macro buttons
-        for (int i = 0; i < 3; i++) {
+        int j = 0;
+
+        for (String name : macroNames) {
             LinearLayout macroRow = new LinearLayout(this);
             macroRow.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
             Button btnTag = new Button(this);
             btnTag.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-            btnTag.setText("Macro " + (i));
-            btnTag.setId(i + 1);
+            btnTag.setText(name);
+            btnTag.setId(j + 1);
             btnTag.setWidth(500);
+            final String currentName = name;
+            btnTag.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) { //When you click on the
+                    Intent intent = new Intent(getApplicationContext(), MacroEdit.class);
+                    intent.putExtra("macroToEdit",currentName); //Optional parameters
+                    getApplicationContext().startActivity(intent);
+
+                }
+            });
 
             Button recordButton = new Button(this);
             recordButton.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
             recordButton.setMinWidth(20);
             recordButton.setText("O");
-            recordButton.setId(i + 1);
+            recordButton.setId(j + 1);
             recordButton.setWidth(20);
-
+            //TODO Add onlick listener to change recording mode to index of macro being recorded.
+            //implement global variable for recorded. Once one recording startes any running recordings must stop
             Button playButton = new Button(this);
             playButton.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-           playButton.setMinWidth(20);
+            playButton.setMinWidth(20);
             playButton.setText(">");
-            playButton.setId(i + 1);
+            playButton.setId(j + 1);
             playButton.setWidth(20);
 
             macroRow.addView(btnTag);
             macroRow.addView(recordButton);
             macroRow.addView(playButton);
             macroSpace.addView(macroRow);
+            j++;
         }
         //get visible services
         ServiceDiscovery discover = new ServiceDiscovery();
@@ -271,7 +242,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             serviceRow.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
             Button btnTag = new Button(this);
             btnTag.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-
+            //TODO add on clicklistener to handle recording
             btnTag.setWidth(800);
 
             btnTag.setText(visibleServices[i]);
@@ -281,13 +252,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         //get shared prefs
         SharedPreferences storedItems = getSharedPreferences("items", 0);
-        for(int i = 0; i < 4;i++){
+        for(int i = 1; i < 5;i++){
             LinearLayout predictionRow = new LinearLayout(this);
             predictionRow.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
             Button btnTag = new Button(this);
             btnTag.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-          //  btnTag.setText( storedItems.getString("item"+i, "Unknown"));
-            btnTag.setText( "test");
+            btnTag.setText( storedItems.getString("item"+i, "Unknown"));
+            //TODO add onclick listener to pop up a toast saying message sent, and send the time and service to theserver
             btnTag.setWidth(800);
 
 
@@ -295,21 +266,4 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             predictionRow.addView(btnTag);
             predictionSpace.addView(predictionRow);
         }
-         /*
-            LinearLayout serviceRow = new LinearLayout(this);
-            serviceRow.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
-
-
-
-            Button btnTag2 = new Button(this);
-            btnTag2.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-            btnTag2.setText("Button " + (i));
-            btnTag2.setId(i + 5);
-
-
-                serviceRow.addView(btnTag2);
-
-
-            serviceSpace.addView(serviceRow);*/
-
 }}
