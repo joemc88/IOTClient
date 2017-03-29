@@ -27,19 +27,17 @@ public class MacroEdit extends AppCompatActivity implements View.OnClickListener
     ArrayList<Integer> hours;
     ArrayList<Integer> minutes;
     String macroName;
+    int MID;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_macro_edit);
-
+        macroHandler = new MacroHandler(this);
         macroName = getIntent().getStringExtra("macroToEdit");
-        Log.i("in macro edit activity", macroName);
-
-        macroHandler = new MacroHandler();
-        Object[] info = macroHandler.getMacro(macroName);
-        actions = (ArrayList<String>) info[0];
-        hours = (ArrayList<Integer>) info[1];
-        minutes = (ArrayList<Integer>) info[2];
+        actions = getIntent().getStringArrayListExtra("actions");
+        hours = getIntent().getIntegerArrayListExtra("hours");
+        minutes = getIntent().getIntegerArrayListExtra("minutes");
+        MID = getIntent().getIntExtra("MID",0);
 
         prepLayout();
     }
@@ -152,7 +150,7 @@ public class MacroEdit extends AppCompatActivity implements View.OnClickListener
             case R.id.saveButton:
                TextView titleText = (TextView)findViewById(R.id.titleText);
                 String name = (String) titleText.getText();
-                macroHandler.editMacro(name, actions, hours, minutes);
+                macroHandler.editMacro(MID, name, actions, hours, minutes);
                 Log.i("Save clicked","Saving");
                 this.finish();
                 break;

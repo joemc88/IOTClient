@@ -24,6 +24,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
     private String newMacroName = "";
+    String URL ="http://192.168.0.151:8080";
     private String response;
     private  ArrayList<String> items;
     private ServiceDiscovery discoverer;
@@ -31,6 +32,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private PendingIntent pintent;
     private  List<String> listDataHeader;
     private HashMap<String, List<String>> listDataChild;
+    MacroHandler macroHandler;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,8 +46,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String item3String = storedItems.getString("item3", "Unknown");
         String item4String = storedItems.getString("item4", "Unknown");
         String item5String = storedItems.getString("item5", "Unknown");
-
-        populateView();
+        macroHandler = new MacroHandler(this);
+        populateView(macroHandler);
 
         Button addMacroButton = (Button) findViewById(R.id.addMacro);
         addMacroButton.setOnClickListener(this);
@@ -65,7 +67,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 60*1000, pintent);
     }
 
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        macroHandler.pollServer(URL+"/getMacros?uid=1", this);
+        populateView(macroHandler);
+    }
 
     private  String buildServiceQuery(String[] discoveredServices){
         String retVal = "?uid="+getString(R.string.uid)+"&services=";
@@ -175,19 +182,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
         return predictedServices;
     }*/
-    public void populateView(){
+    public void populateView(final MacroHandler macroHandler){
         //getLayouts
         LinearLayout macroSpace = (LinearLayout) findViewById(R.id.macroSpace);
         macroSpace.setOrientation(LinearLayout.VERTICAL);
+        macroSpace.removeAllViews();
 
         LinearLayout serviceSpace = (LinearLayout) findViewById(R.id.visibleServicesSpace);
         serviceSpace.setOrientation(LinearLayout.VERTICAL);
+        serviceSpace.removeAllViews();
 
         LinearLayout predictionSpace = (LinearLayout) findViewById(R.id.predictionSpace);
         predictionSpace.setOrientation(LinearLayout.VERTICAL);
+        predictionSpace.removeAllViews();
 
-        MacroHandler macroHandler = new MacroHandler();
-        final String[] macroNames = macroHandler.getNames();
+        //MacroHandler macroHandler = new MacroHandler();
+        Log.i("GOING AHEAD"," With whats in this object");
+        SharedPreferences mPrefs = getSharedPreferences("macros", 0);
+        SharedPreferences.Editor mEditor = mPrefs.edit();
+        String[] macroNames = new String[mPrefs.getAll().size()];
+        for(int i = 0; i <mPrefs.getAll().size();i++){
+           macroNames[i] = mPrefs.getString("macro"+i,"Unknown");
+        }
+
+       // final String[] macroNames = macroHandler.getNames();
 
         //add macro buttons
         int j = 0;
@@ -205,9 +223,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 @Override
                 public void onClick(View v) { //When you click on the
                     Intent intent = new Intent(getApplicationContext(), MacroEdit.class);
-                    intent.putExtra("macroToEdit",currentName); //Optional parameters
-                    getApplicationContext().startActivity(intent);
 
+                    if(macroHandler.getMacro(currentName)!= null) {
+                        Object[] info = macroHandler.getMacro(currentName);
+                        ArrayList<String> actions = (ArrayList<String>) info[0];
+                        ArrayList<Integer> hours = (ArrayList<Integer>) info[1];
+                        ArrayList<Integer> minutes = (ArrayList<Integer>) info[2];
+                        int MID = (Integer) info[3];
+                        intent.putExtra("macroToEdit", currentName); //Optional parameters
+                        intent.putExtra("actions", actions);
+                        intent.putExtra("hours", hours);
+                        intent.putExtra("minutes", minutes);
+                        intent.putExtra("MID", MID);
+                        getApplicationContext().startActivity(intent);
+                    }
                 }
             });
 
@@ -252,7 +281,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         //get shared prefs
         SharedPreferences storedItems = getSharedPreferences("items", 0);
-        for(int i = 1; i < 5;i++){
+
+        for(int i = 1; i < storedItems.getAll().size();i++){
             LinearLayout predictionRow = new LinearLayout(this);
             predictionRow.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
             Button btnTag = new Button(this);
