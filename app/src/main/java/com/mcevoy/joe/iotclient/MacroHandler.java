@@ -1,12 +1,16 @@
 package com.mcevoy.joe.iotclient;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.provider.CalendarContract;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
@@ -19,6 +23,7 @@ import org.json.JSONObject;
 
 import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 /**
  * Created by Joe on 16/03/2017.
@@ -35,7 +40,8 @@ public class MacroHandler implements Parcelable {
     public MacroHandler(Context context){
        // createMacro("my first macro", new String[]{"Thing one","action 2","third task"}, new Integer[]{new Integer(12),new Integer(34), new Integer(4)}, new Integer[]{new Integer(12),new Integer(34), new Integer(4)});
         //TODO encorporate pollserver into macrohandler initialisation
-        pollServer(URL+"/getMacros?uid=1", context);
+        final Context contxt  = context;
+        pollServer(context.getString(R.string.serverURL)+"/getMacros?uid=1", contxt);
 
 
     }
@@ -57,7 +63,7 @@ public class MacroHandler implements Parcelable {
     };
 
     public void pollServer(String url, Context context){
-
+        Toast.makeText(context, "Beginning poll", Toast.LENGTH_SHORT).show();
         RequestParams rp = new RequestParams();
         final Context contxt = context;
         AsyncHttpClient client = new AsyncHttpClient();
@@ -110,10 +116,14 @@ public class MacroHandler implements Parcelable {
                 }
                 SharedPreferences mPrefs = contxt.getSharedPreferences("macros", 0);
                 SharedPreferences.Editor mEditor = mPrefs.edit();
+                Log.d("Clearing macros", "Clearing macros");
+                mEditor.clear();
                 String[] names = getNames();
                 for(int k = 0; k <getNames().length;k++){
                     mEditor.putString("macro"+k,names[k]).apply();
+                    Log.d("Adding macro","adding macro");
                 }
+                Toast.makeText(contxt, "Poll complete", Toast.LENGTH_SHORT).show();
             }
             @Override
             public void onFailure(int statusCode, cz.msebera.android.httpclient.Header[] headers, byte[] responseBody, Throwable error) {
@@ -153,12 +163,27 @@ public class MacroHandler implements Parcelable {
     public Object[]  getMacro(String macroName){
         if(macroNames.indexOf(macroName)>=0){
         int i = macroNames.indexOf(macroName);
-        Object[] retArray = new Object[4];
+        Object[] retArray = new Object[5];
         retArray[0] = macroActions.get(i);
         retArray[1] = macroHours.get(i);
         retArray[2] = macroMinutes.get(i);
         retArray[3] = macroIDS.get(i);
+        retArray[4] = macroNames.get(i);
         return retArray;
+        }else{
+            return null;
+        }
+    }
+    public Object[]  getMacro(int macroID){
+        if(macroIDS.contains(macroID)){
+            int i = macroIDS.indexOf(macroID);
+            Object[] retArray = new Object[5];
+            retArray[0] = macroActions.get(i);
+            retArray[1] = macroHours.get(i);
+            retArray[2] = macroMinutes.get(i);
+            retArray[3] = macroIDS.get(i);
+            retArray[4] = macroNames.get(i);
+            return retArray;
         }else{
             return null;
         }
@@ -171,13 +196,13 @@ public class MacroHandler implements Parcelable {
         }
         return names;
     }
-    public void editMacro(int MID, String name,ArrayList<String> actions, ArrayList<Integer> hours, ArrayList<Integer> minutes){
+    public void editMacro(int MID, String name,ArrayList<String> actions, ArrayList<Integer> hours, ArrayList<Integer> minutes, Context context){
 
         Log.i("SAVING",name);
         RequestParams rp = new RequestParams();
 
         AsyncHttpClient client = new AsyncHttpClient();
-        String query = URL+"/editMacro?uid=1&mid="+MID+"&name="+name+
+        String query = context.getString(R.string.serverURL)+"/editMacro?uid=1&mid="+MID+"&name="+name+
         "&actions="+android.text.TextUtils.join(",", actions)+
         "&hours="+android.text.TextUtils.join(",", hours)+
         "&minutes="+ android.text.TextUtils.join(",", minutes);
@@ -194,20 +219,34 @@ public class MacroHandler implements Parcelable {
                 Log.d("Request failed. Error: ",x );
             }
         });
+    }
 
 
-
-
+    public void playMacro(int macroID, Context context){
+        Log.i("PLAY MACRO","Arrived");
+        AlarmManager alarm = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Calendar cal = Calendar.getInstance();
+        Object[] info = getMacro(macroID);
+        ArrayList<String> actions = (ArrayList<String>) info[0];
+        ArrayList<Integer> hours = (ArrayList<Integer>) info[1];
+        ArrayList<Integer> minutes = (ArrayList<Integer>) info[2];
+        int MID = (Integer) info[3];
+        for(int i=0; i < actions.size();i++) {
+            cal.set(Calendar.HOUR_OF_DAY, hours.get(i));
+            cal.set(Calendar.MINUTE, minutes.get(i));
+            Log.i("Scheduling:",actions.get(i)+"for"+cal.get(Calendar.HOUR_OF_DAY)+":"+cal.get(Calendar.MINUTE));
+            Intent service = new Intent(context, RunMacroService.class);
+            service.putExtra("endpoint", actions.get(i));
+            PendingIntent pIntent = PendingIntent.getService(context, 0, service, 0);
+            alarm.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pIntent);
+        }
 
 
 
 
 
     }
-    public void playMacro(){
-
-    }
-    public void recordMacro(){
+    public void stopMacro(int macroID){
 
     }
 

@@ -150,7 +150,7 @@ public class MacroEdit extends AppCompatActivity implements View.OnClickListener
             case R.id.saveButton:
                TextView titleText = (TextView)findViewById(R.id.titleText);
                 String name = (String) titleText.getText();
-                macroHandler.editMacro(MID, name, actions, hours, minutes);
+                macroHandler.editMacro(MID, name, actions, hours, minutes,this);
                 Log.i("Save clicked","Saving");
                 this.finish();
                 break;

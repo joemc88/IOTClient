@@ -33,19 +33,16 @@ public class CheckinService extends Service{
 
     @Override
     public void onStart(Intent intent, int startId) {
-        Toast.makeText(this, " MyService Started", Toast.LENGTH_SHORT).show();
-       // Log.i("Time", Integer.toString(getHour()));
-      //  Log.i("Day",Integer.toString( getDay()));
-        Log.i("url attempt", getString(R.string.checkInURL)+buildServiceQuery());
-        contactServer(getString(R.string.checkInURL)+buildServiceQuery());
-      // contactServer("http://192.168.0.150:8080/checkIn");
+       // Toast.makeText(this, " MyService Started", Toast.LENGTH_SHORT).show();
+        Log.i("url attempt", getString(R.string.serverURL)+buildServiceQuery());
+        contactServer(getString(R.string.serverURL)+"/checkIn"+buildServiceQuery());
 
     }
 
     @Override
     public void onDestroy() {
         // TODO Auto-generated method stub
-        Toast.makeText(this, "Servics Stopped", Toast.LENGTH_SHORT).show();
+       // Toast.makeText(this, "Servics Stopped", Toast.LENGTH_SHORT).show();
         super.onDestroy();
     }
     private void contactServer( String url){
@@ -94,7 +91,7 @@ public class CheckinService extends Service{
         return day;
     }
     private  String buildServiceQuery(){
-        ServiceDiscovery serviceFinder= new ServiceDiscovery();
+        ServiceDiscovery serviceFinder = new ServiceDiscovery();
         //temporarily swap hours with minutes to speed up learning
         Calendar c = Calendar.getInstance();
         int notReallyHour = c.get(Calendar.MINUTE);

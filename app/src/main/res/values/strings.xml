@@ -8,7 +8,7 @@
     <string name="item3">item3</string>
     <string name="item4">item4</string>
     <string name="item5">item5</string>
-    <string name="checkInURL">http://192.168.0.151:8080/checkIn</string>
+    <string name="serverURL">http://10.243.44.208:8080</string>
     <string name="home">homeCheckin</string>
     <string name="workcheckin">cancel</string>
     <string name="uid">1</string>
