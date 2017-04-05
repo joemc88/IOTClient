@@ -11,6 +11,8 @@ import android.widget.Button;
  */
 
 public class CustomButton extends Button {
+
+    private String URL;
     public CustomButton(Context context) {
         super(context);
         //this.setTextColor(Color.WHITE);
@@ -26,5 +28,13 @@ public class CustomButton extends Button {
       //  this.setBackgroundColor(ContextCompat.getColor(context, R.color.colorPrimaryDark));
        // this.setPadding(10,10,10,10);
 
+    }
+
+    public String getURL() {
+        return URL;
+    }
+
+    public void setURL(String URL) {
+        this.URL = URL;
     }
 }

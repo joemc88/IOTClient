@@ -8,7 +8,9 @@ import android.content.SharedPreferences;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.os.SystemClock;
 import android.provider.CalendarContract;
+import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -223,9 +225,10 @@ public class MacroHandler implements Parcelable {
 
 
     public void playMacro(int macroID, Context context){
-        Log.i("PLAY MACRO","Arrived");
+      Log.i("PLAY MACRO","Arrived");
         AlarmManager alarm = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(System.currentTimeMillis());
         Object[] info = getMacro(macroID);
         ArrayList<String> actions = (ArrayList<String>) info[0];
         ArrayList<Integer> hours = (ArrayList<Integer>) info[1];
@@ -234,10 +237,15 @@ public class MacroHandler implements Parcelable {
         for(int i=0; i < actions.size();i++) {
             cal.set(Calendar.HOUR_OF_DAY, hours.get(i));
             cal.set(Calendar.MINUTE, minutes.get(i));
+            cal.set(Calendar.SECOND, 0);
+          //  cal.set(Calendar.MINUTE, 48);
             Log.i("Scheduling:",actions.get(i)+"for"+cal.get(Calendar.HOUR_OF_DAY)+":"+cal.get(Calendar.MINUTE));
-            Intent service = new Intent(context, RunMacroService.class);
-            service.putExtra("endpoint", actions.get(i));
-            PendingIntent pIntent = PendingIntent.getService(context, 0, service, 0);
+            Intent intent =  new Intent(context, RunMacroService.class);
+
+            intent.putExtra("endpoint",actions.get(i));
+            PendingIntent pIntent = PendingIntent
+                    .getService(context, 0, intent, 0);
+
             alarm.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pIntent);
         }
 

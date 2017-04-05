@@ -255,6 +255,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             playButton.setText("playing");
                             playing = MID;
                             macroHandler.playMacro(MID, getApplicationContext());
+
                         }
 
                     }else{
@@ -273,18 +274,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //get visible services
         ServiceDiscovery discover = new ServiceDiscovery();
         Calendar cal = Calendar.getInstance();
-        String[] visibleServices = discover.getServices(cal.get(Calendar.MINUTE)%24, cal.get(Calendar.DAY_OF_WEEK));
+        final String[] visibleServices = discover.getServices(cal.get(Calendar.MINUTE)%24, cal.get(Calendar.DAY_OF_WEEK));
         //add visible service buttons
         for(int i = 0; i< visibleServices.length;i++){
             LinearLayout serviceRow = new LinearLayout(this);
             serviceRow.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
-            CustomButton btnTag = new CustomButton(this);
+            final CustomButton btnTag = new CustomButton(this);
             btnTag.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
             final String name = visibleServices[i];
+            btnTag.setText(visibleServices[i]);
+            if(visibleServices[i].equals("lightOn")){
+                btnTag.setURL(getString(R.string.serverURL)+"/lightOn");
+            }
             btnTag.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Toast.makeText(getApplicationContext(), "Rest Call sent to "+name, Toast.LENGTH_SHORT).show();
+
                     if(recording >= 0){
                         Calendar cal = Calendar.getInstance();
                         Object[] info = macroHandler.getMacro(recording);
@@ -298,11 +304,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         minutes.add(cal.get(Calendar.MINUTE));
                         macroHandler.editMacro(MID,macroName,actions,hours,minutes,getApplicationContext());
                     }
+                    if(btnTag.getText().equals("lightOn")){
+                        RequestSender requestSender = new RequestSender();
+                        requestSender.sendRequest(btnTag.getURL());
+                    }
                 }
             });
             btnTag.setWidth(1000);
 
-            btnTag.setText(visibleServices[i]);
+
+
             btnTag.setId(i + 5);
             serviceRow.addView(btnTag);
             serviceSpace.addView(serviceRow);
@@ -313,12 +324,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         for(int i = 1; i <= storedItems.getAll().size();i++){
             LinearLayout predictionRow = new LinearLayout(this);
             predictionRow.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
-            CustomButton btnTag = new CustomButton(this);
-            btnTag.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-            btnTag.setText( storedItems.getString("item"+i, "Unknown"));
+            final CustomButton buttonTag = new CustomButton(this);
+            buttonTag.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+            buttonTag.setText( storedItems.getString("item"+i, "Unknown"));
+            if( storedItems.getString("item"+i, "Unknown").equals("lightOn")){
+                buttonTag.setURL(getString(R.string.serverURL)+"/lightOn");
+            }
 
             final String pName = storedItems.getString("item"+i, "Unknown");
-            btnTag.setOnClickListener(new View.OnClickListener() {
+            buttonTag.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Toast.makeText(getApplicationContext(), "Rest Call sent to "+pName, Toast.LENGTH_SHORT).show();
@@ -335,11 +349,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         macroHandler.editMacro(MID,pName,actions,hours,minutes,getApplicationContext());
 
                     }
+                    if(buttonTag.getText().equals("lightOn")){
+                        RequestSender requestSender = new RequestSender();
+                        requestSender.sendRequest(buttonTag.getURL());
+                    }
                 }
+
             });
-            btnTag.setWidth(1000);
-            btnTag.setId(i + 10);
-            predictionRow.addView(btnTag);
+            buttonTag.setWidth(1000);
+            buttonTag.setId(i + 10);
+            predictionRow.addView(buttonTag);
             predictionSpace.addView(predictionRow);
         }
     }

@@ -23,7 +23,9 @@
             </intent-filter>
         </activity>
 
+
         <service android:name=".CheckinService" />
+        <service android:name=".RunMacroService"/>
 
         <activity android:name=".MacroEdit"></activity>
     </application>
