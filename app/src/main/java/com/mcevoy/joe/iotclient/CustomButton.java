@@ -20,11 +20,11 @@ public class CustomButton extends Button {
         GradientDrawable gd1 = new GradientDrawable();
         gd1.setColor(ContextCompat.getColor(context, R.color.colorPrimaryDark)); // Changes this drawbale to use a single color instead of a gradient
         gd1.setCornerRadius(10);
-        gd1.setStroke(2, ContextCompat.getColor(context, R.color.colorAccent));
+        gd1.setStroke(2, ContextCompat.getColor(context, R.color.colorPrimaryLight));
 
         this.setBackgroundDrawable(gd1);
 
-        this.setTextColor(ContextCompat.getColor(context, R.color.colorAccent));
+        this.setTextColor(ContextCompat.getColor(context, R.color.colorPrimaryLight));
       //  this.setBackgroundColor(ContextCompat.getColor(context, R.color.colorPrimaryDark));
        // this.setPadding(10,10,10,10);
 

@@ -42,13 +42,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         discoverer = new ServiceDiscovery();
 
-        //create edit prefs
-        SharedPreferences storedItems = getSharedPreferences("items", 0);
-        String item1String = storedItems.getString("item1", "Unknown");
-        String item2String = storedItems.getString("item2", "Unknown");
-        String item3String = storedItems.getString("item3", "Unknown");
-        String item4String = storedItems.getString("item4", "Unknown");
-        String item5String = storedItems.getString("item5", "Unknown");
         macroHandler = new MacroHandler(this);
         populateView(macroHandler);
 
@@ -245,12 +238,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     if(playing <= 0){
                         Toast.makeText(getApplicationContext(), "Playing Macro", Toast.LENGTH_SHORT).show();
-                        Calendar cal = Calendar.getInstance();
+
                         Object[] info = macroHandler.getMacro(currentName);
                         if(info != null){
-                            ArrayList<String> actions = (ArrayList<String>) info[0];
-                            ArrayList<Integer> hours = (ArrayList<Integer>) info[1];
-                            ArrayList<Integer> minutes = (ArrayList<Integer>) info[2];
+
                             int MID = (Integer) info[3];
                             playButton.setText("playing");
                             playing = MID;
